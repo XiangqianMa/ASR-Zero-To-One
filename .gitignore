@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 
 .idea
+./03-GMM-EM/test
+./03-GMM-EM/train
