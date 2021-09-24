@@ -1,7 +1,9 @@
 import numpy as np
 
-from utils import *
 import scipy.cluster.vq as vq
+import tqdm
+
+from utils import *
 
 
 class GMM:
@@ -111,8 +113,8 @@ class GMM:
         return mean, var, pi
 
     def update_parameters(self, x, iterations):
-        for iter in range(iterations):
-            print("{:d}/{:d}".format(iter, iterations))
+        tq = tqdm.tqdm(range(iterations))
+        for _ in tq:
             gamma = self.E_step(x, self.mean, self.var, self.pi)
             self.mean, self.var, self.pi = self.M_step(x, gamma)
 
@@ -125,7 +127,7 @@ def train(gmms, num_iterations, feat_file, text_file):
 
     # 针对每一类样本单独训练一个GMM
     for target in targets:
-        print(target)
+        print("Target: " + target)
         feats = get_feats(target, dict_utt2feat, dict_target2utt)
         _ = gmms[target].update_parameters(feats, num_iterations)
     return gmms
@@ -161,7 +163,7 @@ def test(gmms, feat_file, text_file):
 if __name__ == '__main__':
     num_gussian = 5
     num_iteration = 5
-    iterations = 2
+
     train_feat_file = "train/feats.scp"
     train_text_file = "train/text"
     test_feat_file = "test/feats.scp"
@@ -175,6 +177,7 @@ if __name__ == '__main__':
         gmms[target].read_data(train_feat_file)
         gmms[target].kmeans_init()
 
-    gmms = train(gmms, iterations, train_feat_file, train_text_file)
+    gmms = train(gmms, num_iteration, train_feat_file, train_text_file)
     acc = test(gmms, test_feat_file, test_text_file)
-    print(acc)
+    print("ACC: " + str(acc))
+    print("ERROR: " + str(1 - acc))
